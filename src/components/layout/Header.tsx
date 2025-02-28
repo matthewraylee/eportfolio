@@ -1,20 +1,88 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
   const pathname = usePathname();
 
-  const navigation = [
+  // Different navigation setup for homepage vs other pages
+  const isHomePage = pathname === "/";
+
+  const mainNavigation = [
+    { name: "Home", href: "#home", section: "home" },
+    { name: "Skills", href: "#skills", section: "skills" },
+    { name: "Projects", href: "#projects", section: "projects" },
+    { name: "About", href: "#about", section: "about" },
+    { name: "Contact", href: "#contact", section: "contact" },
+  ];
+
+  const pageNavigation = [
     { name: "Home", href: "/" },
     { name: "Projects", href: "/projects" },
     { name: "About", href: "/about" },
     { name: "Experience", href: "/experience" },
     { name: "Contact", href: "/contact" },
   ];
+
+  // Use the appropriate navigation based on current page
+  const navigation = isHomePage ? mainNavigation : pageNavigation;
+
+  // Function to handle smooth scrolling for main page navigation
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    section?: string
+  ) => {
+    // Only handle internal page section navigation
+    if (isHomePage && href.startsWith("#") && section) {
+      e.preventDefault();
+
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+
+        // Optionally update URL hash
+        window.history.pushState({}, "", href);
+
+        // Close mobile menu after navigation
+        if (isMenuOpen) setIsMenuOpen(false);
+      }
+    }
+  };
+
+  // Monitor scroll position to highlight active section on homepage
+  useEffect(() => {
+    if (!isHomePage) return;
+
+    const handleScroll = () => {
+      const sections = mainNavigation.map((nav) => nav.section);
+
+      // Find the section that's currently most visible in the viewport
+      const currentSection =
+        sections.find((section) => {
+          const element = document.getElementById(section);
+          if (!element) return false;
+
+          const rect = element.getBoundingClientRect();
+          // Consider a section active when it's top is in the top half of the viewport
+          return rect.top <= 150 && rect.bottom >= 150;
+        }) || "home";
+
+      setActiveSection(currentSection);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Initialize correct section on page load
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isHomePage, mainNavigation]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -38,12 +106,25 @@ const Header = () => {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={(e) => handleNavClick(e, item.href, item.section)}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  pathname === item.href
+                  isHomePage
+                    ? activeSection === item.section
+                      ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
+                      : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    : pathname === item.href
                     ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
                     : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                 }`}
-                aria-current={pathname === item.href ? "page" : undefined}
+                aria-current={
+                  isHomePage
+                    ? activeSection === item.section
+                      ? "page"
+                      : undefined
+                    : pathname === item.href
+                    ? "page"
+                    : undefined
+                }
               >
                 {item.name}
               </Link>
@@ -106,12 +187,29 @@ const Header = () => {
                 key={item.name}
                 href={item.href}
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  pathname === item.href
+                  isHomePage
+                    ? activeSection === item.section
+                      ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
+                      : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    : pathname === item.href
                     ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
                     : "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                 }`}
-                aria-current={pathname === item.href ? "page" : undefined}
-                onClick={() => setIsMenuOpen(false)}
+                aria-current={
+                  isHomePage
+                    ? activeSection === item.section
+                      ? "page"
+                      : undefined
+                    : pathname === item.href
+                    ? "page"
+                    : undefined
+                }
+                onClick={(e) => {
+                  handleNavClick(e, item.href, item.section);
+                  if (!isHomePage || !item.href.startsWith("#")) {
+                    setIsMenuOpen(false);
+                  }
+                }}
               >
                 {item.name}
               </Link>

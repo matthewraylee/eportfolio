@@ -17,8 +17,29 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Add transition for interactive elements */
+a,
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Base section styling */
+section {
+  padding: 4rem 0;
+}
+
+@media (max-width: 640px) {
+  section {
+    padding: 3rem 0;
+  }
 }
