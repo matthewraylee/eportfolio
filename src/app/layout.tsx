@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import SkipToContent from "@/components/layout/SkipToContent";
 
 // Load Inter font with Latin subset for better performance
 const inter = Inter({
@@ -28,8 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body className="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <SkipToContent />
         <Header />
-        <main className="flex-grow">{children}</main>
+        <main id="main-content" className="flex-grow">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
