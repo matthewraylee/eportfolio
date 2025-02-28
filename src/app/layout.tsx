@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SkipToContent from "@/components/layout/SkipToContent";
+import BackToTop from "@/components/layout/BackToTop";
 
 // Load Inter font with Latin subset for better performance
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <BackToTop />
       </body>
     </html>
   );
